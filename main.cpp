@@ -66,13 +66,14 @@ int main() {
 
     std::vector<Sphere> spheres = {
         Sphere(Point3(0, 0, -3), 1, Vec3(0, 0, 1)),
-        Sphere(Point3(1, 0, -3.5), 0.5, Vec3(1, 1, 1)),
+        /*Sphere(Point3(1, 0, -3.5), 0.5, Vec3(1, 1, 1)),
         Sphere(Point3(1, 0, -2), 0.25, Vec3(0, 1, 1)),
         Sphere(Point3(-1.5, -0.5, -2.5), 0.6, Vec3(0, 0, 0)),
         Sphere(Point3(0.8, -0.9, -3), 0.8, Vec3(0, 1, 0)),
         Sphere(Point3(0.5, -0.5, -1.5), 0.28, Vec3(1, 1, 0)),
         Sphere(Point3(1.5, 2, -3), 0.58, Vec3(0, 1, 1)),
         Sphere(Point3(2.5, 1, -5), 0.48, Vec3(1, 0, 0))
+        Novos objetos*/
 
     };
 
