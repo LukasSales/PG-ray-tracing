@@ -4,6 +4,7 @@
 #include "point3.h"
 #include "vec3.h"
 #include "ray.h"
+#include "intersection.h"
 
 class Sphere {
 public:
@@ -13,7 +14,7 @@ public:
 
     Sphere(Point3 c, double r, Vec3 col) : center(c), radius(r), color(col) {}
 
-    bool intersect(const Ray& ray, double& t) const {
+    bool intersect(const Ray& ray, Intersection& intersection) const {
         Vec3 oc(ray.origin.x - center.x, ray.origin.y - center.y, ray.origin.z - center.z);
         double a = ray.direction.dot(ray.direction);
         double b = 2.0 * oc.dot(ray.direction);
@@ -22,11 +23,19 @@ public:
 
         if (discriminant < 0) return false;
 
-        t = (-b - sqrt(discriminant)) / (2.0 * a);
-        if (t > 0) return true;
+        double t = (-b - sqrt(discriminant)) / (2.0 * a);
+        if (t > 0) {
+            intersection = Intersection(t, color);
+            return true;
+        }
 
         t = (-b + sqrt(discriminant)) / (2.0 * a);
-        return t > 0;
+        if (t > 0) {
+            intersection = Intersection(t, color);
+            return true;
+        }
+
+        return false;
     }
 };
 

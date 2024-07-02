@@ -10,33 +10,41 @@ public:
     Vec3() : x(0), y(0), z(0) {}
     Vec3(double x, double y, double z) : x(x), y(y), z(z) {}
 
-    Vec3 operator+(const Vec3& v) const {
-        return Vec3(x + v.x, y + v.y, z + v.z);
+    Vec3 operator+(const Vec3& other) const {
+        return Vec3(x + other.x, y + other.y, z + other.z);
     }
 
-    Vec3 operator-(const Vec3& v) const {
-        return Vec3(x - v.x, y - v.y, z - v.z);
+    Vec3 operator-(const Vec3& other) const {
+        return Vec3(x - other.x, y - other.y, z - other.z);
     }
 
-    Vec3 operator*(double t) const {
-        return Vec3(x * t, y * t, z * t);
+    Vec3 operator*(double scalar) const {
+        return Vec3(x * scalar, y * scalar, z * scalar);
     }
 
-    double dot(const Vec3& v) const {
-        return x * v.x + y * v.y + z * v.z;
+    friend Vec3 operator*(double scalar, const Vec3& vec) {
+        return Vec3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
     }
 
-    Vec3 cross(const Vec3& v) const {
+    Vec3 operator/(double scalar) const {
+        return Vec3(x / scalar, y / scalar, z / scalar);
+    }
+
+    double dot(const Vec3& other) const {
+        return x * other.x + y * other.y + z * other.z;
+    }
+
+    Vec3 cross(const Vec3& other) const {
         return Vec3(
-            y * v.z - z * v.y,
-            z * v.x - x * v.z,
-            x * v.y - y * v.x
+            y * other.z - z * other.y,
+            z * other.x - x * other.z,
+            x * other.y - y * other.x
         );
     }
 
     Vec3 normalize() const {
-        double mag = sqrt(x * x + y * y + z * z);
-        return Vec3(x / mag, y / mag, z / mag);
+        double mag = std::sqrt(x * x + y * y + z * z);
+        return *this / mag;
     }
 };
 

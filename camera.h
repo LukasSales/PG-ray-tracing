@@ -3,6 +3,7 @@
 
 #include "point3.h"
 #include "vec3.h"
+#include "ray.h"
 
 class Camera {
 public:
@@ -19,6 +20,16 @@ public:
         w = Vec3(position.x - lookAt.x, position.y - lookAt.y, position.z - lookAt.z).normalize();
         u = up.cross(w).normalize();
         v = w.cross(u);
+    }
+
+    Ray getRay(int x, int y) const {
+        Vec3 u, v, w;
+        getCameraBasis(u, v, w);
+        double aspect_ratio = double(hres) / double(vres);
+        double u_coord = (2 * ((x + 0.5) / hres) - 1) * aspect_ratio;
+        double v_coord = 1 - 2 * ((y + 0.5) / vres);
+        Vec3 direction = (u_coord * u + v_coord * v - distance * w).normalize();
+        return Ray(position, direction);
     }
 };
 
