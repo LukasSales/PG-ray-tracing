@@ -42,8 +42,12 @@ public:
         );
     }
 
+    double norm() const {
+        return std::sqrt(x * x + y * y + z * z);
+    }
+
     Vec3 normalize() const {
-        double mag = std::sqrt(x * x + y * y + z * z);
+        double mag = norm();
         return *this / mag;
     }
 };

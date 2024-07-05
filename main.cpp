@@ -7,12 +7,15 @@
 #include "intersection.h"
 #include "camera.h"
 #include "lodepng.h"
+#include "mesh.h"
 #include <fstream>
 
-bool findClosestIntersection(const Ray& ray, const std::vector<Sphere>& spheres, const std::vector<Plane>& planes, Intersection& closestIntersection) {
+// Função para encontrar a interseção mais próxima entre um raio e uma lista de objetos
+bool findClosestIntersection(const Ray& ray, const std::vector<Sphere>& spheres, const std::vector<Plane>& planes, const std::vector<Mesh>& meshes, Intersection& closestIntersection) {
     bool hasIntersection = false;
-    double closestDistance = std::numeric_limits<double>::max();
+    double closestDistance = std::numeric_limits<double>::max(); //iniciando com um numero alto
 
+    // Verifica interseção com esferas
     for (const auto& sphere : spheres) {
         Intersection intersection(0, Vec3());
         if (sphere.intersect(ray, intersection) && intersection.distance < closestDistance) {
@@ -22,6 +25,7 @@ bool findClosestIntersection(const Ray& ray, const std::vector<Sphere>& spheres,
         }
     }
 
+    // Verifica interseção com planos
     for (const auto& plane : planes) {
         Intersection intersection(0, Vec3());
         if (plane.intersect(ray, intersection) && intersection.distance < closestDistance) {
@@ -31,10 +35,21 @@ bool findClosestIntersection(const Ray& ray, const std::vector<Sphere>& spheres,
         }
     }
 
+    // Verifica interseção com malhas
+    for (const auto& mesh : meshes) {
+        double dist = mesh.intersect(ray);
+        if (dist > 0 && dist < closestDistance) {
+            closestDistance = dist;
+            closestIntersection = Intersection(dist, mesh.color);
+            hasIntersection = true;
+        }
+    }
+
     return hasIntersection;
 }
 
-void render(const Camera& camera, const std::vector<Sphere>& spheres, const std::vector<Plane>& planes, std::vector<unsigned char>& image) {
+// Função para renderizar a cena e gerar a imagem
+void render(const Camera& camera, const std::vector<Sphere>& spheres, const std::vector<Plane>& planes, const std::vector<Mesh>& meshes, std::vector<unsigned char>& image) {
     std::cout << "Iniciando renderização..." << std::endl;
 
     for (int y = 0; y < camera.vres; ++y) {
@@ -42,7 +57,7 @@ void render(const Camera& camera, const std::vector<Sphere>& spheres, const std:
             Ray ray = camera.getRay(x, y);
 
             Intersection closestIntersection(0, Vec3());
-            if (findClosestIntersection(ray, spheres, planes, closestIntersection)) {
+            if (findClosestIntersection(ray, spheres, planes, meshes, closestIntersection)) {
                 int index = 4 * (y * camera.hres + x);
                 image[index + 0] = static_cast<unsigned char>(closestIntersection.color.x * 255);
                 image[index + 1] = static_cast<unsigned char>(closestIntersection.color.y * 255);
@@ -62,7 +77,9 @@ void render(const Camera& camera, const std::vector<Sphere>& spheres, const std:
 }
 
 int main() {
+    // Definições da câmera
     Point3 cameraPosition(0, 0, 0);
+    //Point3 cameraPosition(0, 2, 5); //camera distante
     Point3 lookAt(0, 0, -1);
     Vec3 up(0, 1, 0);
     double distance = 1.0;
@@ -71,6 +88,7 @@ int main() {
 
     Camera camera(cameraPosition, lookAt, up, distance, vres, hres);
 
+    // Definições das esferas e planos
     std::vector<Sphere> spheres = {
         Sphere(Point3(-1.5, -0.5, -2.5), 0.6, Vec3(0, 0, 0)),
         Sphere(Point3(0.8, -0.9, -3), 0.8, Vec3(0, 1, 0)),
@@ -79,11 +97,31 @@ int main() {
         Sphere(Point3(2.5, 1, -5), 0.48, Vec3(1, 0, 0))
     };
     std::vector<Plane> planes = {
-        Plane(Point3(0, -1, 0), Vec3(0, 1, 0), Vec3(1, 0, 1))
+        Plane(Point3(0, -1, 0), Vec3(0, 1, 0), Vec3(1, 0, 1)),
+        
     };
 
+    // Definições dos vértices e triplas da malha
+    std::vector<Point3> vertices = {
+        Point3(-2, -2, -6), Point3(2, -2, -6), Point3(0, 2, -6), // Triângulo 1
+        //Point3(2, 2, -10), Point3(4, -2, -10), Point3(2, -4, -10), // Triângulo 2
+        //Point3(-4, 2, -12), Point3(-2, -2, -12), Point3(0, 0, -12) // Triângulo 3
+    };
+    std::vector<std::vector<int>> triplas = {
+        {0, 1, 2}, // Triângulo 1
+        //{3, 4, 5}, // Triângulo 2
+        //{6, 7, 8}  // Triângulo 3
+    };
+
+    std::vector<Mesh> meshes = {
+        Mesh(vertices, triplas, Vec3(0, 0, 1))
+    };
+
+    // Cria o buffer de imagem
     std::vector<unsigned char> image(camera.hres * camera.vres * 4);
-    render(camera, spheres, planes, image);
+    
+    // Renderiza a cena
+    render(camera, spheres, planes, meshes, image);
 
     std::cout << "Salvando a imagem em formato PNG..." << std::endl;
     // Salva a imagem usando lodepng
