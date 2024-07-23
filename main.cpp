@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <vector>
 #include <limits>
 #include "ray.h"
@@ -7,9 +8,21 @@
 #include "intersection.h"
 #include "camera.h"
 #include "lodepng.h"
+<<<<<<< Updated upstream
 #include <fstream>
 
 bool findClosestIntersection(const Ray& ray, const std::vector<Sphere>& spheres, const std::vector<Plane>& planes, Intersection& closestIntersection) {
+=======
+#include "mesh.h"
+#include "matrix4.h"
+#include "transformation.h"
+#include <fstream>
+
+#define M_PI 3.14159265358979323846 
+
+// Função para encontrar a interseção mais próxima entre um raio e uma lista de objetos
+bool findClosestIntersection(const Ray& ray, const std::vector<Sphere>& spheres, const std::vector<Plane>& planes, const std::vector<Mesh>& meshes, Intersection& closestIntersection) {
+>>>>>>> Stashed changes
     bool hasIntersection = false;
     double closestDistance = std::numeric_limits<double>::max();
 
@@ -83,6 +96,7 @@ int main() {
     };
 
     std::vector<unsigned char> image(camera.hres * camera.vres * 4);
+<<<<<<< Updated upstream
     render(camera, spheres, planes, image);
 
     std::cout << "Salvando a imagem em formato PNG..." << std::endl;
@@ -107,12 +121,46 @@ int main() {
                 int ib = static_cast<int>(image[index + 2]);
                 ppm << ir << ' ' << ig << ' ' << ib << '\n';
             }
+=======
+    
+    // Renderiza a cena original
+    render(camera, spheres, planes, meshes, image);
+    lodepng::encode("output_before.png", image, camera.hres, camera.vres);
+    std::ofstream ppm_before("output_before.ppm");
+    ppm_before << "P3\n" << camera.hres << " " << camera.vres << "\n255\n";
+    for (int y = 0; y < camera.vres; ++y) {
+        for (int x = 0; x < camera.hres; ++x) {
+            int index = 4 * (y * camera.hres + x);
+            int ir = static_cast<int>(image[index]);
+            int ig = static_cast<int>(image[index + 1]);
+            int ib = static_cast<int>(image[index + 2]);
+            ppm_before << ir << ' ' << ig << ' ' << ib << '\n';
+>>>>>>> Stashed changes
         }
-        ppm.close();
-        std::cout << "Imagem PPM salva com sucesso." << std::endl;
-    } else {
-        std::cout << "Erro ao abrir o arquivo PPM para escrita." << std::endl;
     }
+    ppm_before.close();
+
+    // Aplica uma transformação que combina translação, escala e rotação
+    Matrix4 transform = Matrix4::translation(1, 1, 0) *
+                        Matrix4::scaling(1.5, 1.5, 1.5) *
+                        Matrix4::rotationY(M_PI / 4);  // Rotaciona 45 graus (PI/4 radianos) ao redor do eixo Y
+    applyTransformation(transform, spheres, planes, meshes);
+
+    // Renderiza a cena transformada
+    render(camera, spheres, planes, meshes, image);
+    lodepng::encode("output_after.png", image, camera.hres, camera.vres);
+    std::ofstream ppm_after("output_after.ppm");
+    ppm_after << "P3\n" << camera.hres << " " << camera.vres << "\n255\n";
+    for (int y = 0; y < camera.vres; ++y) {
+        for (int x = 0; x < camera.hres; ++x) {
+            int index = 4 * (y * camera.hres + x);
+            int ir = static_cast<int>(image[index]);
+            int ig = static_cast<int>(image[index + 1]);
+            int ib = static_cast<int>(image[index + 2]);
+            ppm_after << ir << ' ' << ig << ' ' << ib << '\n';
+        }
+    }
+    ppm_after.close();
 
     return 0;
 }
