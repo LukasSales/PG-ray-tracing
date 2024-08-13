@@ -13,6 +13,13 @@ public:
     Vec3 operator+(const Vec3& other) const {
         return Vec3(x + other.x, y + other.y, z + other.z);
     }
+    
+    Vec3& operator+=(const Vec3& other) {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        return *this;
+    }
 
     Vec3 operator-(const Vec3& other) const {
         return Vec3(x - other.x, y - other.y, z - other.z);
@@ -20,6 +27,14 @@ public:
 
     Vec3 operator*(double scalar) const {
         return Vec3(x * scalar, y * scalar, z * scalar);
+    }
+
+    Vec3 operator*(const Vec3& other) const {
+        return Vec3(x * other.x, y * other.y, z * other.z);
+    }
+
+    Vec3 operator-() const {
+        return Vec3(-x, -y, -z);
     }
 
     friend Vec3 operator*(double scalar, const Vec3& vec) {
@@ -42,9 +57,17 @@ public:
         );
     }
 
+    double norm() const {
+        return std::sqrt(x * x + y * y + z * z);
+    }
+
     Vec3 normalize() const {
-        double mag = std::sqrt(x * x + y * y + z * z);
+        double mag = norm();
         return *this / mag;
+    }
+
+    bool operator==(const Vec3& other) const {
+        return x == other.x && y == other.y && z == other.z;
     }
 };
 

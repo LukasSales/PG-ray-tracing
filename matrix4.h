@@ -1,9 +1,9 @@
 #ifndef MATRIX4_H
 #define MATRIX4_H
 
-#include "vec3.h"  // Inclui a definição da classe Vec3
-#include "point3.h"  // Inclui a definição da classe Point3
-#include <cmath>  // Inclui funções matemáticas como cos e sin
+#include "vec3.h" 
+#include "point3.h"
+#include <cmath> 
 
 class Matrix4 {
 public:

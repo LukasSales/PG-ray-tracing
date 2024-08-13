@@ -5,14 +5,16 @@
 #include "vec3.h"
 #include "ray.h"
 #include "intersection.h"
+#include "material.h"
 
 class Sphere {
 public:
     Point3 center;
     double radius;
-    Vec3 color;
+    Material material;
 
-    Sphere(Point3 c, double r, Vec3 col) : center(c), radius(r), color(col) {}
+    Sphere(Point3 c, double r, const Material& material) 
+        : center(c), radius(r), material(material) {}
 
     bool intersect(const Ray& ray, Intersection& intersection) const {
         Vec3 oc(ray.origin.x - center.x, ray.origin.y - center.y, ray.origin.z - center.z);
@@ -25,13 +27,13 @@ public:
 
         double t = (-b - sqrt(discriminant)) / (2.0 * a);
         if (t > 0) {
-            intersection = Intersection(t, color);
+            intersection = Intersection(t, (ray.at(t) - center).normalize(), material);
             return true;
         }
 
         t = (-b + sqrt(discriminant)) / (2.0 * a);
         if (t > 0) {
-            intersection = Intersection(t, color);
+            intersection = Intersection(t, (ray.at(t) - center).normalize(), material);
             return true;
         }
 

@@ -5,22 +5,23 @@
 #include "vec3.h"
 #include "ray.h"
 #include "intersection.h"
+#include "material.h"
 
 class Plane {
 public:
     Point3 point;
     Vec3 normal;
-    Vec3 color;
+    Material material;
 
-    Plane(Point3 p, Vec3 n, Vec3 col) : point(p), normal(n), color(col) {}
+    Plane(Point3 p, Vec3 n, const Material& material)
+        : point(p), normal(n.normalize()), material(material) {}
 
     bool intersect(const Ray& ray, Intersection& intersection) const {
         double denom = normal.dot(ray.direction);
         if (fabs(denom) > 1e-6) {
-            Vec3 p0l0(point.x - ray.origin.x, point.y - ray.origin.y, point.z - ray.origin.z);
-            double t = p0l0.dot(normal) / denom;
+            double t = (point - ray.origin).dot(normal) / denom;
             if (t >= 0) {
-                intersection = Intersection(t, color);
+                intersection = Intersection(t, normal, material);
                 return true;
             }
         }
